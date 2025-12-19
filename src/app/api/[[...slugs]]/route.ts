@@ -4,6 +4,7 @@ import { Elysia } from "elysia";
 import { nanoid } from "nanoid";
 import { authMiddleware } from "./auth";
 import z from "zod";
+import cors from "@elysiajs/cors";
 
 const ROOM_TTL_SECONDS = 60 * 10;
 
@@ -127,7 +128,19 @@ const messages = new Elysia({ prefix: "/messages" })
     }
   );
 
-const app = new Elysia({ prefix: "/api" }).use(rooms).use(messages);
+const app = new Elysia({ prefix: "/api" })
+  .use(
+    cors({
+      origin: [
+        "https://www.gowsik.life",
+        "https://real-time-chat-app-git-main-gowsikan-nakuleswarans-projects.vercel.app",
+      ],
+      methods: ["GET", "POST", "DELETE"],
+      credentials: true,
+    })
+  )
+  .use(rooms)
+  .use(messages);
 
 export const GET = app.fetch;
 export const POST = app.fetch;
