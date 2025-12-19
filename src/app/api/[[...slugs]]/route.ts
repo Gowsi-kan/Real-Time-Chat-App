@@ -131,12 +131,30 @@ const messages = new Elysia({ prefix: "/messages" })
 const app = new Elysia({ prefix: "/api" })
   .use(
     cors({
-      origin: [
-        "https://www.gowsik.life",
-        "https://real-time-chat-app-git-main-gowsikan-nakuleswarans-projects.vercel.app",
-      ],
-      methods: ["GET", "POST", "DELETE"],
+      origin: (origin) => {
+        // origin can be string | Request | undefined
+        if (!origin) return false;
+
+        let originUrl: string | null = null;
+
+        if (typeof origin === "string") {
+          originUrl = origin;
+        } else if (origin instanceof Request) {
+          originUrl = origin.headers.get("origin");
+        }
+
+        if (!originUrl) return false;
+
+        // Allow all Vercel preview & production URLs
+        if (originUrl.endsWith(".vercel.app")) return true;
+
+        // Optional: allow custom domain
+        if (originUrl === "https://www.gowsik.life") return true;
+
+        return false;
+      },
       credentials: true,
+      methods: ["GET", "POST", "DELETE", "OPTIONS"],
     })
   )
   .use(rooms)
